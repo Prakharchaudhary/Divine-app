@@ -4,6 +4,8 @@ var categoryTable = db.category
 var userAddress = db.userAddress
 var product = db.product
 var userCart = db.userCart
+var preistModel = db.preistModel
+
 const otpGenerator = require('otp-generator');
 const apiKey = 'Tu1jcZ2MGqODd9azxgoQsnfK0k78VytYFUHBJ6L3wrbiNEIlhRN5JRXg42H7ImxbLsKjvwEaOS0rWhlQ';
 
@@ -544,5 +546,123 @@ async function resendOTP(req, res) {
   }
 }
 
+
+async function addPriestInfo(req,res){
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized: Token missing' });
+    }
+
+    // Verify the token and get the user_id from the payload
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.user_id;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    }
+
+      const { name, skills, House_no, building, area, city, pincode, state, user_id } = req.body;
+      const skillsArray = Array.isArray(skills) ? skills : skills.split(',');
+
+      const priest = await preistModel.create({
+        name,
+        skills: skillsArray, 
+        House_no,
+        building,
+        area,
+        city,
+        pincode,
+        state,
+        user_id:userId,
+      });
+      res.status(201).json(priest);
+    
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+}
+
+
+
+async function getPriestInfo(req, res) {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized: Token missing' });
+    }
+
+    // Verify the token and get the user_id from the payload
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.user_id;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    }
+
+    // Retrieve preist information from the database based on preistId
+    const preist = await preistModel.findOne({ where: { user_id: userId } });
+
+    if (preist) {
+      res.status(200).json(preist);
+    } else {
+      res.status(404).json({ message: 'Preist not found' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+}
+
+
+async function updatePriestInfoByToken(req, res) {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized: Token missing' });
+    }
+
+    // Verify the token and get the user_id (priest's ID) from the payload
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const priestId = decoded.user_id; // Assuming user_id in the token represents the priest's ID
+
+    if (!priestId) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    }
+
+    const { name, skills, House_no, building, area, city, pincode, state, user_id } = req.body;
+
+    // Check if skills is a comma-separated string, convert it to an array
+    const skillsArray = Array.isArray(skills) ? skills : skills.split(',');
+
+    // Fetch the priest's information by ID
+    const priest = await preistModel.findByPk(priestId);
+
+    if (!priest) {
+      return res.status(404).json({ message: 'Priest not found' });
+    }
+
+    // Update the priest's information
+    await priest.update({
+      name,
+      skills: skillsArray, 
+      House_no,
+      building,
+      area,
+      city,
+      pincode,
+      state,
+      user_id,
+    });
+
+    res.status(200).json(priest);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+}
+
   module.exports = {signupUsers,resendEmail,verifyOTP,savePassword,loginUser,createAddress,updateAddress,getAddressByUserId,addToCart
-    ,getUserCart,deleteCartItem,updateCartItem,deleteCartItem,userLogout,sendOTP,resendOTP}
+    ,getUserCart,deleteCartItem,updateCartItem,deleteCartItem,userLogout,sendOTP,resendOTP,addPriestInfo,getPriestInfo,updatePriestInfoByToken}
