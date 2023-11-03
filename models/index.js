@@ -24,6 +24,8 @@ const sequelize = new Sequelize('Divine', 'root', 'cprakhar999@gmail.com', {
   db.product = require('./product')(sequelize,DataTypes)
   db.userAddress = require('./userAddress.')(sequelize,DataTypes)
   db.userCart = require('./userCart')(sequelize,DataTypes)
+  db.preistModel = require('./preistModel')(sequelize,DataTypes)
+
 
 
 
@@ -37,8 +39,12 @@ const sequelize = new Sequelize('Divine', 'root', 'cprakhar999@gmail.com', {
   db.userModels.hasMany( db.userCart,{foreignKey:'user_id'})
   db.userCart.belongsTo(db.userModels,{ foreignKey: 'user_id' })
 
+
   db.product.hasMany( db.userCart,{foreignKey:'product_id'})
   db.userCart.belongsTo(db.product,{ foreignKey: 'product_id' })
+
+  db.userModels.hasMany( db.preistModel,{foreignKey:'user_id'})
+  db.preistModel.belongsTo(db.userModels,{ foreignKey: 'user_id' })
 
 
 

@@ -20,6 +20,7 @@ app.use(express.static('public'))
 const multer = require('multer');
 const path = require("path")
 
+
 const storage = multer.diskStorage({
     destination:function(req,file,cb){
         cb(null,path.join(__dirname,'./public/image'))
@@ -70,6 +71,14 @@ const filefilter = (req,file,cb)=>{
       app.post("/updateCartItem",isAuthorize,userController.updateCartItem);
       app.post("/deleteCartItem",isAuthorize,userController.deleteCartItem);
       app.post("/userLogout",isAuthorize,userController.userLogout);
+      app.post("/addPriestInfo",isAuthorize,userController.addPriestInfo);
+      app.get("/getPriestInfo",isAuthorize,userController.getPriestInfo);
+      app.patch("/updatePriestInfoByToken",isAuthorize,userController.updatePriestInfoByToken);
+
+      
+
+      
+
 
       
 
