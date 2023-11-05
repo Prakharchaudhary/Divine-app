@@ -149,6 +149,47 @@ const signupUsers = async (req, res) => {
   }
 
 
+
+  const signUp = async (req, res) => {
+    try {
+      const { email, password } = req.body;
+  
+      // Validate email and password
+      if (!email || !password) {
+        return res.status(400).json({ message: 'Email and password are required fields.' });
+      }
+  
+      // Check if the email is already registered
+      const existingUser = await userModels.findOne({ where: { email: email } });
+      if (existingUser) {
+        return res.status(400).json({ message: 'Email is already in use. Please choose another one.' });
+      }
+  
+      // Hash the password before saving it to the database
+      const hashedPassword = await bcrypt.hash(password, 10);
+  
+      // Create a new user in the database
+      const newUser = await userModels.create({
+        email: email,
+        password: hashedPassword,
+      });
+  
+      // Send success response
+      return res.status(201).json({ message: 'User registered successfully.', data: newUser });
+    } catch (error) {
+      // Handle specific Sequelize validation errors
+      if (error.name === 'SequelizeValidationError') {
+        const errors = error.errors.map(err => err.message);
+        return res.status(400).json({ message: 'Validation error.', errors: errors });
+      }
+  
+      // Handle other errors
+      console.error('Error signing up:', error);
+      return res.status(500).json({ message: 'Error signing up.', error: error.message });
+    }
+  };
+
+
   const loginUser = async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -665,4 +706,4 @@ async function updatePriestInfoByToken(req, res) {
 }
 
   module.exports = {signupUsers,resendEmail,verifyOTP,savePassword,loginUser,createAddress,updateAddress,getAddressByUserId,addToCart
-    ,getUserCart,deleteCartItem,updateCartItem,deleteCartItem,userLogout,sendOTP,resendOTP,addPriestInfo,getPriestInfo,updatePriestInfoByToken}
+    ,getUserCart,deleteCartItem,updateCartItem,deleteCartItem,userLogout,sendOTP,resendOTP,addPriestInfo,getPriestInfo,updatePriestInfoByToken,signUp}
