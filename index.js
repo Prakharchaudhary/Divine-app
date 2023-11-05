@@ -74,6 +74,9 @@ const filefilter = (req,file,cb)=>{
       app.post("/addPriestInfo",isAuthorize,userController.addPriestInfo);
       app.get("/getPriestInfo",isAuthorize,userController.getPriestInfo);
       app.patch("/updatePriestInfoByToken",isAuthorize,userController.updatePriestInfoByToken);
+      app.post("/signUp",userController.signUp);
+
+      
 
       
 
