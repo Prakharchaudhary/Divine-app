@@ -161,7 +161,13 @@ const addCategory = async (req, res) => {
       let category_id = req.params.id;
   
       const { name, courseBook, rs, instock } = req.body;
-      let image = req.file.filename;
+      // let image = req.file.filename;
+      let image = null;
+
+      // Handle file upload using Multer if a file is included in the request
+      if (req.file) {
+        image = req.file.filename;
+      }
   
       // Validate required fields
       if (!name || !rs || !instock) {
